@@ -2,9 +2,18 @@ import pytest
 pytestmark = [pytest.mark.api, pytest.mark.get]
 
 def test_get_product_happy(http, base_url, timeout):
-    product_id = "01K8RNF12GMV72X9QZ1ADWMBX2"
+    r_list = http.get(f"{base_url}/products", timeout=timeout)
+    assert r_list.status_code == 200, f"list failed: {r_list.status_code} {r_list.text}"
+    data = r_list.json()
+    # API bywa różne: czasem zwraca listę, czasem obiekt z kluczem "data"
+    items = data if isinstance(data, list) else data.get("data", [])
+    if not items:
+        pytest.skip("No products in the catalog.")
+    product_id = items[0]["id"]
+
     r = http.get(f"{base_url}/products/{product_id}", timeout=timeout)
-    assert r.status_code == 200
+
+    assert r.status_code == 200, f"GET /products/{product_id} failed: {r.status_code} {r.text}"
     body = r.json()
     assert body.get("id") == product_id
     assert "name" in body and "price" in body
@@ -20,5 +29,5 @@ def test_get_product_negative_valid_input_not_found(http, base_url, timeout):
 
 # @pytest.mark.negative
 # def test_get_product_negative_invalid_input_non_integer(http, base_url, timeout):
-#     r = http.get(f"{base_url}/products/null", timeout=timeout)
+#     r = http.get(f"{base_url}/products/-1", timeout=timeout)
 #     assert r.status_code == 405
