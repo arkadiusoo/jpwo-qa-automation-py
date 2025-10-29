@@ -24,6 +24,25 @@ def test_delete_product_negative_valid_input_not_found(http, base_url, timeout, 
     assert r.status_code == 404, f"Spec expects 404, got {r.status_code}: {r.text}"
 
 @pytest.mark.negative
-def test_delete_product_negative_invalid_input_non_integer(http, base_url, timeout, admin_headers):
+def test_delete_product_negative_invalid_input_non_uuid(http, base_url, timeout, admin_headers):
     r = http.delete(f"{base_url}/products/abc", headers=admin_headers, timeout=timeout)
     assert r.status_code == 422, f"Spec expects 422, got {r.status_code}: {r.text}"
+
+@pytest.mark.negative
+def test_delete_product_negative_product_used_elsewhere(http, base_url, timeout, admin_headers):
+    r_list = http.get(f"{base_url}/products", timeout=timeout)
+    assert r_list.status_code == 200, f"list failed: {r_list.status_code} {r_list.text}"
+    data = r_list.json()
+
+    items = data if isinstance(data, list) else data.get("data", [])
+    if not items:
+        pytest.skip("No products in the catalog.")
+    product_id = items[0]["id"]
+    r = http.delete(f"{base_url}/products/{product_id}", headers=admin_headers, timeout=timeout)
+    assert r.status_code == 409, f"Spec expects 409, got {r.status_code}: {r.text}"
+
+@pytest.mark.negative
+def test_delete_product_negative_unauthorized(http, base_url, timeout, product_factory):
+    pid = product_factory()
+    r = http.delete(f"{base_url}/products/{pid}", timeout=timeout)
+    assert r.status_code == 401, f"Spec expects 401, got {r.status_code}: {r.text}"
