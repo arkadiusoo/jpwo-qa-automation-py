@@ -35,8 +35,6 @@ def product_relations(http, base_url, timeout):
     return {"brand_id": brand_id, "category_id": category_id, "product_image_id": image_id}
 
 def _login(base_url: str, email: str, password: str, timeout: int) -> str | None:
-    # POST /users/login -> returns {"access_token": "..."}
-    # Known demo accounts exist in the upstream project.
     resp = requests.post(
         f"{base_url}/users/login",
         json={"email": email, "password": password},
@@ -67,30 +65,6 @@ def admin_headers(admin_token):
     if not admin_token:
         pytest.skip("admin token not configured - set ADMIN_EMAIL/ADMIN_PASSWORD in .env")
     return {"Authorization": f"Bearer {admin_token}"}
-
-@pytest.fixture()
-def unique_brand_name() -> str:
-    return f"brand_{uuid.uuid4().hex[:10]}"
-
-@pytest.fixture()
-def brand_factory(http, base_url, timeout, admin_headers):
-    created_ids = []
-
-    def _create(name: str) -> int:
-        resp = http.post(f"{base_url}/brands", json={"name": name},
-                         headers=admin_headers, timeout=timeout)
-        assert resp.status_code in (200, 201), f"create brand failed: {resp.status_code} {resp.text}"
-        bid = resp.json().get("id")
-        assert isinstance(bid, int)
-        created_ids.append(bid)
-        return bid
-
-    yield _create
-
-    # cleanup
-    for bid in created_ids:
-        http.delete(f"{base_url}/brands/{bid}", headers=admin_headers, timeout=timeout)
-
 
 @pytest.fixture()
 def product_payload_valid(product_relations):
