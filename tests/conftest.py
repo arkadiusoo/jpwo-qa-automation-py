@@ -20,6 +20,20 @@ def http() -> requests.Session:
     s.headers.update({"Accept": "application/json"})
     return s
 
+@pytest.fixture()
+def product_relations(http, base_url, timeout):
+    r_list = http.get(f"{base_url}/products", timeout=timeout)
+    assert r_list.status_code == 200, f"list failed: {r_list.status_code} {r_list.text}"
+    data = r_list.json()
+    items = data if isinstance(data, list) else data.get("data", [])
+    if not items:
+        pytest.skip("No products in the catalog - cannot derive relation IDs.")
+    item = items[0]
+    brand_id = item.get("brand_id") or (item.get("brand") or {}).get("id")
+    category_id = item.get("category_id") or (item.get("category") or {}).get("id")
+    image_id = item.get("product_image_id") or (item.get("product_image") or {}).get("id")
+    return {"brand_id": brand_id, "category_id": category_id, "product_image_id": image_id}
+
 def _login(base_url: str, email: str, password: str, timeout: int) -> str | None:
     # POST /users/login -> returns {"access_token": "..."}
     # Known demo accounts exist in the upstream project.
@@ -59,12 +73,12 @@ def unique_brand_name() -> str:
     return f"brand_{uuid.uuid4().hex[:10]}"
 
 @pytest.fixture()
-def brand_factory(base_url, timeout, admin_headers):
+def brand_factory(http, base_url, timeout, admin_headers):
     created_ids = []
 
     def _create(name: str) -> int:
-        resp = requests.post(f"{base_url}/brands", json={"name": name},
-                             headers=admin_headers, timeout=timeout)
+        resp = http.post(f"{base_url}/brands", json={"name": name},
+                         headers=admin_headers, timeout=timeout)
         assert resp.status_code in (200, 201), f"create brand failed: {resp.status_code} {resp.text}"
         bid = resp.json().get("id")
         assert isinstance(bid, int)
@@ -75,40 +89,50 @@ def brand_factory(base_url, timeout, admin_headers):
 
     # cleanup
     for bid in created_ids:
-        requests.delete(f"{base_url}/brands/{bid}", headers=admin_headers, timeout=timeout)
+        http.delete(f"{base_url}/brands/{bid}", headers=admin_headers, timeout=timeout)
 
 
 @pytest.fixture()
-def product_payload_valid():
-    def _make(name=None, price=9.99, description="Test product", is_location_offer=1, is_rental=0,
-              category_id="01K8RRWYDKG0WYG384PJGVNREM", brand_id="01K8RRWY347SKPMYHMDFJGPN9X", product_image_id="01K8RRWYE05YD87QMN91R7EWQ6", co2_rating="A"):
+def product_payload_valid(product_relations):
+    def _make(
+        name=None,
+        price=9.99,
+        description="Test product",
+        brand_id=None,
+        category_id=None,
+        product_image_id=None,
+        is_location_offer=False,
+        is_rental=False,
+        co2_rating="A",
+    ):
+        rel = product_relations
         return {
             "name": name or f"prod_{uuid.uuid4().hex[:8]}",
             "description": description,
             "price": price,
-            "category_id": category_id,
-            "brand_id": brand_id,
-            "product_image_id": product_image_id,
-            "is_location_offer": is_location_offer,
-            "is_rental": is_rental,
-            "co2_rating": co2_rating
+            "brand_id": brand_id if brand_id is not None else rel["brand_id"],
+            "category_id": category_id if category_id is not None else rel["category_id"],
+            "product_image_id": product_image_id if product_image_id is not None else rel["product_image_id"],
+            "is_location_offer": is_location_offer,  # bool
+            "is_rental": is_rental,                  # bool
+            "co2_rating": co2_rating,
         }
     return _make
 
 @pytest.fixture()
-def product_factory(base_url, timeout, admin_headers, product_payload_valid):
+def product_factory(http, base_url, timeout, admin_headers, product_payload_valid):
     created_ids = []
 
     def _create(payload=None):
         data = payload or product_payload_valid()
-        r = requests.post(f"{base_url}/products", json=data, headers=admin_headers, timeout=timeout)
+        r = http.post(f"{base_url}/products", json=data, headers=admin_headers, timeout=timeout)
         assert r.status_code in (200, 201), f"create product failed: {r.status_code} {r.text}"
         pid = r.json().get("id")
-        assert isinstance(pid, int)
+        assert pid, "No product id in response"
         created_ids.append(pid)
         return pid
 
     yield _create
 
     for pid in created_ids:
-        requests.delete(f"{base_url}/products/{pid}", headers=admin_headers, timeout=timeout)
+        http.delete(f"{base_url}/products/{pid}", headers=admin_headers, timeout=timeout)

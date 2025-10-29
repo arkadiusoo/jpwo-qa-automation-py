@@ -5,7 +5,7 @@ def test_get_product_happy(http, base_url, timeout):
     r_list = http.get(f"{base_url}/products", timeout=timeout)
     assert r_list.status_code == 200, f"list failed: {r_list.status_code} {r_list.text}"
     data = r_list.json()
-    # API bywa różne: czasem zwraca listę, czasem obiekt z kluczem "data"
+
     items = data if isinstance(data, list) else data.get("data", [])
     if not items:
         pytest.skip("No products in the catalog.")
