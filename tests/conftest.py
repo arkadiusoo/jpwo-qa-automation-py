@@ -76,3 +76,38 @@ def brand_factory(base_url, timeout, admin_headers):
     # cleanup
     for bid in created_ids:
         requests.delete(f"{base_url}/brands/{bid}", headers=admin_headers, timeout=timeout)
+
+
+@pytest.fixture()
+def product_payload_valid():
+    def _make(name=None, price=9.99, description="Test product", is_location_offer=False, is_rental=False,
+              category_id=1, brand_id=1, product_image_id=1):
+        return {
+            "name": name or f"prod_{uuid.uuid4().hex[:8]}",
+            "description": description,
+            "price": price,
+            "category_id": category_id,
+            "brand_id": brand_id,
+            "product_image_id": product_image_id,
+            "is_location_offer": is_location_offer,
+            "is_rental": is_rental
+        }
+    return _make
+
+@pytest.fixture()
+def product_factory(base_url, timeout, admin_headers, product_payload_valid):
+    created_ids = []
+
+    def _create(payload=None):
+        data = payload or product_payload_valid()
+        r = requests.post(f"{base_url}/products", json=data, headers=admin_headers, timeout=timeout)
+        assert r.status_code in (200, 201), f"create product failed: {r.status_code} {r.text}"
+        pid = r.json().get("id")
+        assert isinstance(pid, int)
+        created_ids.append(pid)
+        return pid
+
+    yield _create
+
+    for pid in created_ids:
+        requests.delete(f"{base_url}/products/{pid}", headers=admin_headers, timeout=timeout)
