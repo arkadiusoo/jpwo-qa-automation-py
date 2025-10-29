@@ -1,0 +1,5 @@
+pytest==8.3.3
+requests==2.32.3
+python-dotenv==1.0.1
+faker==30.6.0
+pytest-xdist==3.6.1
