@@ -80,8 +80,8 @@ def brand_factory(base_url, timeout, admin_headers):
 
 @pytest.fixture()
 def product_payload_valid():
-    def _make(name=None, price=9.99, description="Test product", is_location_offer=False, is_rental=False,
-              category_id=1, brand_id=1, product_image_id=1):
+    def _make(name=None, price=9.99, description="Test product", is_location_offer=1, is_rental=0,
+              category_id="01K8RRWYDKG0WYG384PJGVNREM", brand_id="01K8RRWY347SKPMYHMDFJGPN9X", product_image_id="01K8RRWYE05YD87QMN91R7EWQ6", co2_rating="A"):
         return {
             "name": name or f"prod_{uuid.uuid4().hex[:8]}",
             "description": description,
@@ -90,7 +90,8 @@ def product_payload_valid():
             "brand_id": brand_id,
             "product_image_id": product_image_id,
             "is_location_offer": is_location_offer,
-            "is_rental": is_rental
+            "is_rental": is_rental,
+            "co2_rating": co2_rating
         }
     return _make
 
