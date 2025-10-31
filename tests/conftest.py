@@ -21,7 +21,7 @@ def http() -> requests.Session:
     return s
 
 @pytest.fixture()
-def product_relations(http, base_url, timeout):
+def brand_relations(http, base_url, timeout):
     r_list = http.get(f"{base_url}/products", timeout=timeout)
     assert r_list.status_code == 200, f"list failed: {r_list.status_code} {r_list.text}"
     data = r_list.json()
@@ -67,7 +67,7 @@ def admin_headers(admin_token):
     return {"Authorization": f"Bearer {admin_token}"}
 
 @pytest.fixture()
-def product_payload_valid(product_relations):
+def product_payload_valid(brand_relations):
     def _make(
         name=None,
         price=9.99,
@@ -79,7 +79,7 @@ def product_payload_valid(product_relations):
         is_rental=False,
         co2_rating="A",
     ):
-        rel = product_relations
+        rel = brand_relations
         return {
             "name": name or f"prod_{uuid.uuid4().hex[:8]}",
             "description": description,
@@ -90,6 +90,20 @@ def product_payload_valid(product_relations):
             "is_location_offer": is_location_offer,  # bool
             "is_rental": is_rental,                  # bool
             "co2_rating": co2_rating,
+        }
+    return _make
+
+@pytest.fixture()
+def brand_payload_valid():
+    def _make(
+        name=None,
+        description="Test brand",
+        slug="test-brand",
+    ):
+        return {
+            "name": name or f"prod_{uuid.uuid4().hex[:8]}",
+            "description": description,
+            "slug": slug
         }
     return _make
 
@@ -109,4 +123,22 @@ def product_factory(http, base_url, timeout, admin_headers, product_payload_vali
     yield _create
 
     for pid in created_ids:
-        http.delete(f"{base_url}/products/{pid}", headers=admin_headers, timeout=timeout)
+        http.delete(f"{base_url}/products/{pid}", headers=admin_headers, timeout=timeout)@pytest.fixture()
+
+@pytest.fixture()
+def brand_factory(http, base_url, timeout, admin_headers, brand_payload_valid):
+    created_ids = []
+
+    def _create(payload=None):
+        data = payload or brand_payload_valid()
+        r = http.post(f"{base_url}/brands", json=data, headers=admin_headers, timeout=timeout)
+        assert r.status_code in (200, 201), f"create product failed: {r.status_code} {r.text}"
+        bid = r.json().get("id")
+        assert bid, "No brand id in response"
+        created_ids.append(bid)
+        return bid
+
+    yield _create
+
+    for bid in created_ids:
+        http.delete(f"{base_url}/brands/{bid}", headers=admin_headers, timeout=timeout)
