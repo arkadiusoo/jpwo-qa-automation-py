@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 import pytest
 import requests
@@ -93,18 +94,23 @@ def product_payload_valid(brand_relations):
         }
     return _make
 
+
 @pytest.fixture()
 def brand_payload_valid():
-    def _make(
-        name=None,
-        description="Test brand",
-        slug="test-brand",
-    ):
+    def _slugify(text):
+        text = text.lower()
+        text = re.sub(r'[^a-z0-9]+', '-', text)
+        return text.strip('-')
+
+    def _make(name=None, description="Test brand"):
+        name = name or f"prod_{uuid.uuid4().hex[:8]}"
+        slug = _slugify(name)
         return {
-            "name": name or f"prod_{uuid.uuid4().hex[:8]}",
+            "name": name,
             "description": description,
-            "slug": f"test-brand-{uuid.uuid4()}"
+            "slug": slug
         }
+
     return _make
 
 @pytest.fixture()
