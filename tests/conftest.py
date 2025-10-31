@@ -103,7 +103,7 @@ def brand_payload_valid():
         return {
             "name": name or f"prod_{uuid.uuid4().hex[:8]}",
             "description": description,
-            "slug": slug
+            "slug": f"test-brand-{uuid.uuid4()}"
         }
     return _make
 
