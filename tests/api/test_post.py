@@ -5,6 +5,7 @@ def test_post_product_happy(http, base_url, timeout, admin_headers, product_fact
     pid = product_factory(product_payload_valid())
     r = http.get(f"{base_url}/products/{pid}", headers=admin_headers, timeout=timeout)
     assert r.status_code == 200, f"Spec expects 200, got {r.status_code}: {r.text}"
+    assert r.json()['description'] == "Test product"
 
 
 @pytest.mark.negative
