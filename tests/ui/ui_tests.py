@@ -52,7 +52,7 @@ def test_go_to_pliers(driver):
     driver.quit()
 
 def test_login_success(driver):
-    driver.get("https://practicesoftwaretesting.com/login")
+    driver.get("https://practicesoftwaretesting.com/auth/login")
 
     wait = WebDriverWait(driver, 10)
 
@@ -62,7 +62,7 @@ def test_login_success(driver):
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys("welcome01")
 
-    login_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
     login_button.click()
 
     wait.until(EC.url_contains("/account"))
@@ -70,7 +70,7 @@ def test_login_success(driver):
 
 
 def test_login_invalid_credentials(driver):
-    driver.get("https://practicesoftwaretesting.com/login")
+    driver.get("https://practicesoftwaretesting.com/auth/login")
 
     wait = WebDriverWait(driver, 10)
 
@@ -80,7 +80,7 @@ def test_login_invalid_credentials(driver):
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys("badpassword")
 
-    login_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
     login_button.click()
 
     error = wait.until(
