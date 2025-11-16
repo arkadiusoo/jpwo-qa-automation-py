@@ -51,6 +51,45 @@ def test_go_to_pliers(driver):
 
     driver.quit()
 
+def test_login_success(driver):
+    driver.get("https://practicesoftwaretesting.com/login")
+
+    wait = WebDriverWait(driver, 10)
+
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "email")))
+    email_input.send_keys("admin@practicesoftwaretesting.com")
+
+    password_input = driver.find_element(By.ID, "password")
+    password_input.send_keys("welcome01")
+
+    login_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    login_button.click()
+
+    wait.until(EC.url_contains("/account"))
+    assert "/account" in driver.current_url
+
+
+def test_login_invalid_credentials(driver):
+    driver.get("https://practicesoftwaretesting.com/login")
+
+    wait = WebDriverWait(driver, 10)
+
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "email")))
+    email_input.send_keys("wrong@mail.com")
+
+    password_input = driver.find_element(By.ID, "password")
+    password_input.send_keys("badpassword")
+
+    login_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    login_button.click()
+
+    error = wait.until(
+        EC.visibility_of_element_located(
+            (By.CSS_SELECTOR, ".alert.alert-danger")
+        )
+    )
+
+    assert "Invalid email or password" in error.text
 
 def test_add_to_cart_positive(driver):
     driver.get("https://practicesoftwaretesting.com/product"
