@@ -14,7 +14,8 @@ def driver():
     options = webdriver.ChromeOptions()
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
-    return driver
+    yield driver
+    driver.quit()
 
 
 def test_go_to_main_by_logo(driver):
