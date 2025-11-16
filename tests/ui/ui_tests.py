@@ -18,7 +18,7 @@ def driver():
     driver.quit()
 
 
-def test_go_to_main_by_logo(driver):
+def TC_UI_01_test_go_to_main_by_logo(driver):
     driver.get("https://practicesoftwaretesting.com/product"
                "/01KA6SR9JG4P594K2BBFYFTG0E")
     wait = WebDriverWait(driver, 5)
@@ -32,7 +32,7 @@ def test_go_to_main_by_logo(driver):
     driver.quit()
 
 
-def test_go_to_pliers(driver):
+def TC_UI_05_test_go_to_pliers(driver):
     driver.get("https://practicesoftwaretesting.com")
     time.sleep(2)
     wait = WebDriverWait(driver, 5)
@@ -51,7 +51,7 @@ def test_go_to_pliers(driver):
 
     driver.quit()
 
-def test_login_success(driver):
+def TC_UI_02_test_login_success(driver):
     driver.get("https://practicesoftwaretesting.com/auth/login")
 
     wait = WebDriverWait(driver, 10)
@@ -76,7 +76,7 @@ def test_login_success(driver):
 
     assert sign_out_btn.is_displayed()
 
-def test_login_invalid_credentials(driver):
+def TC_UI_06_test_login_invalid_credentials(driver):
     driver.get("https://practicesoftwaretesting.com/auth/login")
 
     wait = WebDriverWait(driver, 10)
@@ -98,7 +98,7 @@ def test_login_invalid_credentials(driver):
 
     assert "Invalid email or password" in error.text
 
-def test_admin_reports_chart_visible(driver):
+def TC_UI_03_test_admin_reports_chart_visible(driver):
 
     driver.get("https://practicesoftwaretesting.com/auth/login")
     wait = WebDriverWait(driver, 10)
@@ -129,7 +129,7 @@ def test_admin_reports_chart_visible(driver):
     assert chart.is_displayed(), "Wykres raportu nie jest widoczny na dashboardzie!"
 
 
-def test_admin_reports_latest_orders_table(driver):
+def TC_UI_04_test_admin_reports_latest_orders_table(driver):
 
     driver.get("https://practicesoftwaretesting.com/auth/login")
     wait = WebDriverWait(driver, 10)
@@ -165,7 +165,7 @@ def test_admin_reports_latest_orders_table(driver):
 
     assert total_text.startswith("$"), "Kolumna 'Total' nie zawiera prawidłowej kwoty!"
 
-def test_add_to_cart_positive(driver):
+def TC_UI_08_test_add_to_cart_positive(driver):
     driver.get("https://practicesoftwaretesting.com/product"
                "/01KA6X65BES7CSX4Z0MJ7WVZ9V")
     wait = WebDriverWait(driver, 5)
@@ -183,7 +183,7 @@ def test_add_to_cart_positive(driver):
                                     "checkout page")
 
 
-def test_add_to_cart_negative(driver):
+def TC_UI_07_test_add_to_cart_negative(driver):
     driver.get("https://practicesoftwaretesting.com/product"
                "/01KA6X65BJ12S27D9YBQ3ZSMA8")
     wait = WebDriverWait(driver, 5)
