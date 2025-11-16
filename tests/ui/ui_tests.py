@@ -65,9 +65,16 @@ def test_login_success(driver):
     login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
     login_button.click()
 
-    sign_out_btn = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[data-test='nav-sign-out']")))
-    assert sign_out_btn.is_displayed()
+    user_menu = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-menu']"))
+    )
+    user_menu.click()
 
+    sign_out_btn = wait.until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "[data-test='nav-sign-out']"))
+    )
+
+    assert sign_out_btn.is_displayed()
 
 def test_login_invalid_credentials(driver):
     driver.get("https://practicesoftwaretesting.com/auth/login")
