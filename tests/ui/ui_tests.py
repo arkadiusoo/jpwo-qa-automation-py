@@ -91,6 +91,73 @@ def test_login_invalid_credentials(driver):
 
     assert "Invalid email or password" in error.text
 
+def test_admin_reports_chart_visible(driver):
+
+    driver.get("https://practicesoftwaretesting.com/auth/login")
+    wait = WebDriverWait(driver, 10)
+
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "email")))
+    email_input.send_keys("admin@practicesoftwaretesting.com")
+
+    password_input = driver.find_element(By.ID, "password")
+    password_input.send_keys("welcome01")
+
+    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
+    login_button.click()
+
+
+    nav_menu = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-menu']")))
+    nav_menu.click()
+
+    dashboard_link = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-admin-dashboard']"))
+    )
+    dashboard_link.click()
+
+
+    chart = wait.until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "canvas.chart"))
+    )
+
+    assert chart.is_displayed(), "Wykres raportu nie jest widoczny na dashboardzie!"
+
+
+def test_admin_reports_latest_orders_table(driver):
+
+    driver.get("https://practicesoftwaretesting.com/auth/login")
+    wait = WebDriverWait(driver, 10)
+
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "email")))
+    email_input.send_keys("admin@practicesoftwaretesting.com")
+
+    password_input = driver.find_element(By.ID, "password")
+    password_input.send_keys("welcome01")
+
+    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
+    login_button.click()
+
+
+    nav_menu = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-menu']")))
+    nav_menu.click()
+
+    dashboard_link = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-admin-dashboard']"))
+    )
+    dashboard_link.click()
+
+
+    table_rows = wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table.table tbody tr"))
+    )
+
+    assert len(table_rows) > 0, "Tabela 'Latest orders' jest pusta!"
+
+
+    total_column = table_rows[0].find_elements(By.TAG_NAME, "td")[4]
+    total_text = total_column.text
+
+    assert total_text.startswith("$"), "Kolumna 'Total' nie zawiera prawidłowej kwoty!"
+
 def test_add_to_cart_positive(driver):
     driver.get("https://practicesoftwaretesting.com/product"
                "/01KA6X65BES7CSX4Z0MJ7WVZ9V")
