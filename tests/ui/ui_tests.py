@@ -16,7 +16,7 @@ def driver():
     return driver
 
 
-def test_go_to_main(driver):
+def test_go_to_main_by_logo(driver):
     driver.get("https://practicesoftwaretesting.com/product"
                "/01KA6SR9JG4P594K2BBFYFTG0E")
     wait = WebDriverWait(driver, 15)
