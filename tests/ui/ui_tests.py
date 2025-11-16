@@ -65,8 +65,8 @@ def test_login_success(driver):
     login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
     login_button.click()
 
-    wait.until(EC.url_contains("/account"))
-    assert "/account" in driver.current_url
+    sign_out_btn = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[data-test='nav-sign-out']")))
+    assert sign_out_btn.is_displayed()
 
 
 def test_login_invalid_credentials(driver):
