@@ -51,6 +51,7 @@ def TC_UI_05_test_go_to_pliers(driver):
 
     driver.quit()
 
+
 def TC_UI_02_test_login_success(driver):
     driver.get("https://practicesoftwaretesting.com/auth/login")
 
@@ -62,19 +63,23 @@ def TC_UI_02_test_login_success(driver):
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys("welcome01")
 
-    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
+    login_button = driver.find_element(By.CSS_SELECTOR,
+                                       "input[data-test='login-submit']")
     login_button.click()
 
     user_menu = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-menu']"))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "[data-test='nav-menu']"))
     )
     user_menu.click()
 
     sign_out_btn = wait.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "[data-test='nav-sign-out']"))
+        EC.visibility_of_element_located(
+            (By.CSS_SELECTOR, "[data-test='nav-sign-out']"))
     )
 
     assert sign_out_btn.is_displayed()
+
 
 def TC_UI_06_test_login_invalid_credentials(driver):
     driver.get("https://practicesoftwaretesting.com/auth/login")
@@ -87,7 +92,8 @@ def TC_UI_06_test_login_invalid_credentials(driver):
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys("badpassword")
 
-    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
+    login_button = driver.find_element(By.CSS_SELECTOR,
+                                       "input[data-test='login-submit']")
     login_button.click()
 
     error = wait.until(
@@ -98,8 +104,8 @@ def TC_UI_06_test_login_invalid_credentials(driver):
 
     assert "Invalid email or password" in error.text
 
-def TC_UI_03_test_admin_reports_chart_visible(driver):
 
+def TC_UI_03_test_admin_reports_chart_visible(driver):
     driver.get("https://practicesoftwaretesting.com/auth/login")
     wait = WebDriverWait(driver, 10)
 
@@ -109,28 +115,29 @@ def TC_UI_03_test_admin_reports_chart_visible(driver):
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys("welcome01")
 
-    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
+    login_button = driver.find_element(By.CSS_SELECTOR,
+                                       "input[data-test='login-submit']")
     login_button.click()
 
-
-    nav_menu = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-menu']")))
+    nav_menu = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "[data-test='nav-menu']")))
     nav_menu.click()
 
     dashboard_link = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-admin-dashboard']"))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "[data-test='nav-admin-dashboard']"))
     )
     dashboard_link.click()
-
 
     chart = wait.until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, "canvas.chart"))
     )
 
-    assert chart.is_displayed(), "Wykres raportu nie jest widoczny na dashboardzie!"
+    assert chart.is_displayed(), ("Wykres raportu nie jest widoczny na "
+                                  "dashboardzie!")
 
 
 def TC_UI_04_test_admin_reports_latest_orders_table(driver):
-
     driver.get("https://practicesoftwaretesting.com/auth/login")
     wait = WebDriverWait(driver, 10)
 
@@ -140,30 +147,33 @@ def TC_UI_04_test_admin_reports_latest_orders_table(driver):
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys("welcome01")
 
-    login_button = driver.find_element(By.CSS_SELECTOR, "input[data-test='login-submit']")
+    login_button = driver.find_element(By.CSS_SELECTOR,
+                                       "input[data-test='login-submit']")
     login_button.click()
 
-
-    nav_menu = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-menu']")))
+    nav_menu = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "[data-test='nav-menu']")))
     nav_menu.click()
 
     dashboard_link = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-test='nav-admin-dashboard']"))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "[data-test='nav-admin-dashboard']"))
     )
     dashboard_link.click()
 
-
     table_rows = wait.until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table.table tbody tr"))
+        EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, "table.table tbody tr"))
     )
 
     assert len(table_rows) > 0, "Tabela 'Latest orders' jest pusta!"
 
-
     total_column = table_rows[0].find_elements(By.TAG_NAME, "td")[4]
     total_text = total_column.text
 
-    assert total_text.startswith("$"), "Kolumna 'Total' nie zawiera prawidłowej kwoty!"
+    assert total_text.startswith(
+        "$"), "Kolumna 'Total' nie zawiera prawidłowej kwoty!"
+
 
 def TC_UI_08_test_add_to_cart_positive(driver):
     driver.get("https://practicesoftwaretesting.com/product"
