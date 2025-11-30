@@ -1,6 +1,8 @@
 from behave import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
 
 @when('wpisze email "{email}"')
 def step_enter_email(context, email):
